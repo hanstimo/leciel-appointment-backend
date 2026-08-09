@@ -1,3 +1,9 @@
+FROM node:20-alpine AS assets
+WORKDIR /app
+COPY . .
+RUN npm install
+RUN npm run build
+
 FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y \
@@ -9,6 +15,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 
 COPY . .
+
+COPY --from=assets /app/public/build ./public/build
 
 RUN composer install --optimize-autoloader --no-dev --no-interaction
 
