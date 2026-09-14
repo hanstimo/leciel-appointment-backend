@@ -22,7 +22,7 @@ class AppointmentController extends Controller
             'koleksi_ids.*' => 'exists:koleksis,id',
         ]);
 
-        $pelanggan = Pelanggan::firstOrCreate(
+        $existing = Pelanggan::where('email', $data['email'])->first(); if ($existing && $existing->password && ! auth('sanctum')->user()) { return response()->json(['message' => 'An account with this email already exists. Please sign in to book with this email.'], 422); } $pelanggan = Pelanggan::firstOrCreate(
             ['email' => $data['email']],
             [
                 'nama' => $data['nama'],
