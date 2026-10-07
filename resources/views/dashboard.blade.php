@@ -2,7 +2,7 @@
     <x-slot name="header">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;500;600&family=Jost:wght@300;400;500;600&display=swap">
         <h2 class="font-['Cormorant_Garamond',serif] text-2xl text-[#152349] tracking-wide">
-            Dashboard Admin &mdash; Manajemen Appointment
+            Admin Dashboard &mdash; Appointment Management
         </h2>
     </x-slot>
 
@@ -19,11 +19,11 @@
             <div class="flex items-center gap-2 flex-wrap">
                 @php
                     $tabs = [
-                        '' => 'Semua',
-                        'menunggu' => 'Menunggu',
-                        'dikonfirmasi' => 'Dikonfirmasi',
-                        'selesai' => 'Selesai',
-                        'dibatalkan' => 'Dibatalkan',
+                        '' => 'All',
+                        'menunggu' => 'Awaiting',
+                        'dikonfirmasi' => 'Confirmed',
+                        'selesai' => 'Completed',
+                        'dibatalkan' => 'Cancelled',
                     ];
                 @endphp
                 @foreach ($tabs as $value => $label)
@@ -44,12 +44,12 @@
                 <table class="min-w-full text-sm">
                     <thead>
                         <tr class="bg-[#F5F0E8] text-[#8A8078] text-[0.65rem] uppercase tracking-[0.08em]">
-                            <th class="py-3 px-5 text-left font-medium">Tanggal & Jam</th>
-                            <th class="py-3 px-5 text-left font-medium">Pelanggan</th>
-                            <th class="py-3 px-5 text-left font-medium">Koleksi</th>
-                            <th class="py-3 px-5 text-left font-medium">Sumber</th>
+                            <th class="py-3 px-5 text-left font-medium">Date &amp; Time</th>
+                            <th class="py-3 px-5 text-left font-medium">Customer</th>
+                            <th class="py-3 px-5 text-left font-medium">Items</th>
+                            <th class="py-3 px-5 text-left font-medium">Source</th>
                             <th class="py-3 px-5 text-left font-medium">Status</th>
-                            <th class="py-3 px-5 text-left font-medium">Catatan</th>
+                            <th class="py-3 px-5 text-left font-medium">Notes</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#E0D8CC]">
@@ -95,10 +95,10 @@
                                         @endphp
                                         <select name="status" onchange="this.form.submit()"
                                             class="text-xs font-medium border pl-3 pr-7 py-1.5 cursor-pointer {{ $statusColor }}">
-                                            <option value="menunggu" @selected($appointment->status === 'menunggu')>Menunggu</option>
-                                            <option value="dikonfirmasi" @selected($appointment->status === 'dikonfirmasi')>Dikonfirmasi</option>
-                                            <option value="selesai" @selected($appointment->status === 'selesai')>Selesai</option>
-                                            <option value="dibatalkan" @selected($appointment->status === 'dibatalkan')>Dibatalkan</option>
+                                            <option value="menunggu" @selected($appointment->status === 'menunggu')>Awaiting</option>
+                                            <option value="dikonfirmasi" @selected($appointment->status === 'dikonfirmasi')>Confirmed</option>
+                                            <option value="selesai" @selected($appointment->status === 'selesai')>Completed</option>
+                                            <option value="dibatalkan" @selected($appointment->status === 'dibatalkan')>Cancelled</option>
                                         </select>
                                     </form>
                                 </td>
@@ -106,7 +106,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-12 text-center text-[#8A8078]">Belum ada appointment.</td>
+                                <td colspan="6" class="py-12 text-center text-[#8A8078]">No appointments yet.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -115,31 +115,31 @@
 
             {{-- Form tambah appointment VIP --}}
             <div class="bg-[#FDFAF5] border border-[#E0D8CC] p-6" x-data="{ activeKategori: null }">
-                <h3 class="font-['Cormorant_Garamond',serif] text-xl text-[#152349] mb-4">Catat Appointment VIP (WhatsApp)</h3>
+                <h3 class="font-['Cormorant_Garamond',serif] text-xl text-[#152349] mb-4">Record VIP Appointment (WhatsApp)</h3>
 
                 <form action="{{ route('appointments.storeManual') }}" method="POST" class="space-y-5">
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
-                            <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-1">Nama Pelanggan</label>
+                            <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-1">Customer Name</label>
                             <input type="text" name="nama" required class="w-full border-[#E0D8CC] text-sm focus:border-[#C56E4E] focus:ring-0">
                         </div>
                         <div>
-                            <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-1">No. WhatsApp</label>
+                            <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-1">WhatsApp Number</label>
                             <input type="text" name="no_telepon" required class="w-full border-[#E0D8CC] text-sm focus:border-[#C56E4E] focus:ring-0">
                         </div>
                         <div>
-                            <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-1">Tanggal</label>
+                            <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-1">Date</label>
                             <input type="date" name="tanggal" required class="w-full border-[#E0D8CC] text-sm focus:border-[#C56E4E] focus:ring-0">
                         </div>
                         <div>
-                            <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-1">Jam</label>
+                            <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-1">Time</label>
                             <input type="time" name="jam" required class="w-full border-[#E0D8CC] text-sm focus:border-[#C56E4E] focus:ring-0">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-2">Koleksi yang ingin dilihat</label>
+                        <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-2">Items the customer wants to see</label>
 
                         <div class="flex gap-2 flex-wrap mb-4">
                             @foreach ($koleksiList->pluck('kategori')->unique() as $kategori)
@@ -154,7 +154,7 @@
 
                         <div class="border border-[#E0D8CC] p-4">
                             <template x-if="!activeKategori">
-                                <p class="text-xs text-[#8A8078] text-center py-10">Pilih kategori di atas untuk menampilkan koleksinya</p>
+                                <p class="text-xs text-[#8A8078] text-center py-10">Choose a category above to show its items</p>
                             </template>
 
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[34rem] overflow-y-auto">
@@ -177,12 +177,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-1">Catatan</label>
+                        <label class="block text-[0.68rem] uppercase tracking-[0.12em] text-[#8A8078] mb-1">Notes</label>
                         <textarea name="catatan" rows="2" class="w-full border-[#E0D8CC] text-sm focus:border-[#C56E4E] focus:ring-0"></textarea>
                     </div>
 
                     <button type="submit" class="bg-[#152349] text-[#FDFAF5] text-sm font-medium px-6 py-2.5 hover:bg-[#C56E4E] transition">
-                        Simpan Appointment
+                        Save Appointment
                     </button>
                 </form>
             </div>
