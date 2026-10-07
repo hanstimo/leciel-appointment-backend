@@ -2,7 +2,7 @@
     <x-slot name="header">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;500;600&family=Jost:wght@300;400;500;600&display=swap">
         <h2 class="font-['Cormorant_Garamond',serif] text-2xl text-[#152349] tracking-wide">
-            Kelola Koleksi
+            Manage Collection
         </h2>
     </x-slot>
 
@@ -16,9 +16,9 @@
             @endif
 
             <div class="flex items-center justify-between">
-                <p class="text-sm text-[#8A8078]">Matikan toggle untuk menandai koleksi sedang tidak bisa dilihat customer (misal lagi direparasi / dipinjam).</p>
+                <p class="text-sm text-[#8A8078]">Open an item to mark it unavailable when it is out of display, for example under repair or on loan.</p>
                 <a href="{{ route('dashboard') }}" class="px-4 py-1.5 text-[0.7rem] uppercase tracking-[0.08em] border border-[#E0D8CC] text-[#152349] hover:border-[#C56E4E] transition">
-                    &larr; Kembali ke Dashboard
+                    &larr; Back to Dashboard
                 </a>
             </div>
 
@@ -32,7 +32,7 @@
     <div class="p-2.5">
         <p class="text-[0.8rem] font-medium text-[#152349] leading-tight">{{ $koleksi->nama_koleksi }}</p>
         <p class="text-[0.65rem] uppercase tracking-[0.08em] mt-1 {{ $koleksi->tersedia ? 'text-[#27AE60]' : 'text-[#C0392B]' }}">
-            {{ $koleksi->tersedia ? 'Tersedia' : 'Tidak Tersedia' }}
+            {{ $koleksi->tersedia ? 'Available' : 'Unavailable' }}
         </p>
     </div>
 </a>
