@@ -37,7 +37,7 @@ class AppointmentController extends Controller
 
         $appointment->update(['status' => $data['status']]);
 
-        return back()->with('success', 'Status appointment diperbarui.');
+        return back()->with('success', 'Appointment status updated.');
     }
 
     public function storeManual(Request $request)
@@ -71,6 +71,6 @@ class AppointmentController extends Controller
             $appointment->koleksis()->attach($data['koleksi_ids']);
         }
 
-        return back()->with('success', 'Appointment VIP dari WhatsApp berhasil dicatat.');
+        return back()->with('success', 'VIP appointment from WhatsApp has been recorded.');
     }
 }
