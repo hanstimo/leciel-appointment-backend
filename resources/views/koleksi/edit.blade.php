@@ -16,7 +16,7 @@
             @endif
 
             <a href="{{ route('koleksi.index') }}" class="inline-block text-[0.7rem] uppercase tracking-[0.08em] text-[#8A8078] hover:text-[#152349]">
-                &larr; Kembali ke Kelola Koleksi
+                &larr; Back to Manage Collection
             </a>
 
             <div class="bg-[#FDFAF5] border border-[#E0D8CC] p-6 flex gap-6">
@@ -29,7 +29,7 @@
                         @csrf
                         @method('PATCH')
                         <span class="text-xs uppercase tracking-[0.08em] {{ $koleksi->tersedia ? 'text-[#27AE60]' : 'text-[#C0392B]' }}">
-                            {{ $koleksi->tersedia ? 'Tersedia' : 'Tidak Tersedia' }}
+                            {{ $koleksi->tersedia ? 'Available' : 'Unavailable' }}
                         </span>
                         <button type="submit" class="w-10 h-5 rounded-full relative transition {{ $koleksi->tersedia ? 'bg-[#27AE60]' : 'bg-[#E0D8CC]' }}">
                             <span class="absolute top-0.5 {{ $koleksi->tersedia ? 'right-0.5' : 'left-0.5' }} w-4 h-4 rounded-full bg-white transition"></span>
@@ -39,26 +39,26 @@
             </div>
 
             <div class="bg-[#FDFAF5] border border-[#E0D8CC] p-6">
-                <h3 class="font-['Cormorant_Garamond',serif] text-xl text-[#152349] mb-2">Tanggal Tidak Tersedia</h3>
-                <p class="text-xs text-[#8A8078] mb-4">Item ini otomatis dianggap tersedia di semua tanggal, kecuali tanggal yang ditandai di bawah ini.</p>
+                <h3 class="font-['Cormorant_Garamond',serif] text-xl text-[#152349] mb-2">Unavailable Dates</h3>
+                <p class="text-xs text-[#8A8078] mb-4">This item counts as available on every date except the ones marked below.</p>
 
                 <form action="{{ route('koleksi.blocked-dates.store', $koleksi) }}" method="POST" class="flex items-end gap-3 mb-6 flex-wrap">
                     @csrf
                     <div>
-                        <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">Dari Tanggal</label>
+                        <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">From Date</label>
                         <input type="date" name="tanggal_mulai" required class="border-[#E0D8CC] text-sm">
                     </div>
                     <div>
-                        <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">Sampai Tanggal (opsional)</label>
+                        <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">To Date (optional)</label>
                         <input type="date" name="tanggal_selesai" class="border-[#E0D8CC] text-sm">
                     </div>
                     <button type="submit" class="bg-[#152349] text-[#FDFAF5] text-sm px-4 py-2 hover:bg-[#C56E4E] transition">
-                        Tandai Tidak Tersedia
+                        Mark Unavailable
                     </button>
                 </form>
 
                 @if ($koleksi->unavailableDates->isEmpty())
-                    <p class="text-sm text-[#8A8078]">Belum ada tanggal yang diblokir.</p>
+                    <p class="text-sm text-[#8A8078]">No blocked dates yet.</p>
                 @else
                     <div class="flex flex-wrap gap-2">
                         @foreach ($koleksi->unavailableDates->sortBy('tanggal') as $date)
