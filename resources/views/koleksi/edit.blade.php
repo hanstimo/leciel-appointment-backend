@@ -6,12 +6,27 @@
         </h2>
     </x-slot>
 
+    @php
+        $warnaAlasan = [
+            'dipinjam'   => 'bg-[#E67E22]/10 text-[#E67E22] border-[#E67E22]/30',
+            'diperbaiki' => 'bg-[#8A8078]/10 text-[#8A8078] border-[#8A8078]/30',
+            'disewa'     => 'bg-[#C56E4E]/10 text-[#C56E4E] border-[#C56E4E]/30',
+            'dijual'     => 'bg-[#C0392B]/10 text-[#C0392B] border-[#C0392B]/30',
+        ];
+    @endphp
+
     <div class="py-8 bg-[#F5F0E8] font-['Jost',sans-serif]">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if (session('success'))
                 <div class="bg-[#27AE60]/10 border border-[#27AE60]/30 text-[#27AE60] px-4 py-2.5 text-sm">
                     {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="bg-[#C0392B]/10 border border-[#C0392B]/30 text-[#C0392B] px-4 py-2.5 text-sm">
+                    {{ $errors->first() }}
                 </div>
             @endif
 
@@ -40,38 +55,123 @@
 
             <div class="bg-[#FDFAF5] border border-[#E0D8CC] p-6">
                 <h3 class="font-['Cormorant_Garamond',serif] text-xl text-[#152349] mb-2">Unavailable Dates</h3>
-                <p class="text-xs text-[#8A8078] mb-4">This item counts as available on every date except the ones marked below.</p>
+                <p class="text-xs text-[#8A8078] mb-5">
+                    This item counts as available on every date except the ones listed below.
+                    The reason is for internal use only and is never shown to customers.
+                </p>
 
                 <form action="{{ route('koleksi.blocked-dates.store', $koleksi) }}" method="POST" class="flex items-end gap-3 mb-6 flex-wrap">
                     @csrf
                     <div>
                         <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">From Date</label>
-                        <input type="date" name="tanggal_mulai" required class="border-[#E0D8CC] text-sm">
+                        <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}" required
+                               class="border-[#E0D8CC] text-sm">
                     </div>
                     <div>
                         <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">To Date (optional)</label>
-                        <input type="date" name="tanggal_selesai" class="border-[#E0D8CC] text-sm">
+                        <input type="date" name="tanggal_selesai" value="{{ old('tanggal_selesai') }}"
+                               class="border-[#E0D8CC] text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">Reason</label>
+                        <select name="alasan" required class="border-[#E0D8CC] text-sm">
+                            <option value="">Select reason</option>
+                            @foreach (\App\Models\KoleksiUnavailableDate::ALASAN as $nilai => $label)
+                                <option value="{{ $nilai }}" @selected(old('alasan') === $nilai)>{{ $label }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <button type="submit" class="bg-[#152349] text-[#FDFAF5] text-sm px-4 py-2 hover:bg-[#C56E4E] transition">
                         Mark Unavailable
                     </button>
                 </form>
 
-                @if ($koleksi->unavailableDates->isEmpty())
-                    <p class="text-sm text-[#8A8078]">No blocked dates yet.</p>
+                <p class="text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-2">Active blocks</p>
+
+                @if ($aktif->isEmpty())
+                    <p class="text-sm text-[#8A8078] mb-2">No active blocked dates.</p>
                 @else
-                    <div class="flex flex-wrap gap-2">
-                        @foreach ($koleksi->unavailableDates->sortBy('tanggal') as $date)
-                            <form action="{{ route('koleksi.blocked-dates.destroy', [$koleksi, $date]) }}" method="POST" class="flex items-center gap-1 bg-[#F5F0E8] border border-[#E0D8CC] px-3 py-1.5">
-                                @csrf
-                                @method('DELETE')
-                                <span class="text-sm text-[#152349]">{{ $date->tanggal->format('d M Y') }}</span>
-                                <button type="submit" class="text-[#C0392B] text-xs hover:underline ml-1">&times;</button>
-                            </form>
+                    <div class="border border-[#E0D8CC] divide-y divide-[#E0D8CC] mb-2">
+                        @foreach ($aktif as $r)
+                            <div class="flex items-center justify-between gap-4 px-4 py-3 bg-[#FDFAF5]">
+                                <div class="min-w-0">
+                                    <p class="text-sm text-[#152349]">
+                                        @if ($r['jumlah'] === 1)
+                                            {{ $r['mulai']->format('d M Y') }}
+                                        @else
+                                            {{ $r['mulai']->format('d M Y') }} &ndash; {{ $r['selesai']->format('d M Y') }}
+                                        @endif
+                                    </p>
+                                    <p class="text-xs text-[#8A8078] mt-0.5">
+                                        {{ $r['jumlah'] }} {{ \Illuminate\Support\Str::plural('day', $r['jumlah']) }}
+                                    </p>
+                                </div>
+
+                                <div class="flex items-center gap-3 shrink-0">
+                                    <span class="text-[0.65rem] uppercase tracking-[0.08em] px-2 py-1 border {{ $warnaAlasan[$r['alasan']] ?? 'bg-[#F5F0E8] text-[#8A8078] border-[#E0D8CC]' }}">
+                                        {{ $r['label'] }}
+                                    </span>
+                                    <form action="{{ route('koleksi.blocked-dates.range', $koleksi) }}" method="POST"
+                                          onsubmit="return confirm('Remove this block?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="ids" value="{{ implode(',', $r['ids']) }}">
+                                        <button type="submit" class="text-[#C0392B] text-xs hover:underline">Remove</button>
+                                    </form>
+                                </div>
+                            </div>
                         @endforeach
                     </div>
                 @endif
             </div>
+
+            @if ($riwayat->isNotEmpty())
+                <details class="bg-[#FDFAF5] border border-[#E0D8CC] p-6 group">
+                    <summary class="cursor-pointer list-none flex items-center justify-between">
+                        <span class="font-['Cormorant_Garamond',serif] text-xl text-[#152349]">
+                            History
+                            <span class="font-['Jost',sans-serif] text-xs text-[#8A8078] ml-2">
+                                {{ $riwayat->count() }} past {{ \Illuminate\Support\Str::plural('block', $riwayat->count()) }}
+                            </span>
+                        </span>
+                        <span class="text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] group-open:hidden">Show</span>
+                        <span class="text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] hidden group-open:inline">Hide</span>
+                    </summary>
+
+                    <div class="mt-4">
+                        <div class="border border-[#E0D8CC] divide-y divide-[#E0D8CC]">
+                            @foreach ($riwayat as $r)
+                                <div class="flex items-center justify-between gap-4 px-4 py-2.5 bg-[#F5F0E8]/40">
+                                    <div class="min-w-0">
+                                        <p class="text-sm text-[#8A8078]">
+                                            @if ($r['jumlah'] === 1)
+                                                {{ $r['mulai']->format('d M Y') }}
+                                            @else
+                                                {{ $r['mulai']->format('d M Y') }} &ndash; {{ $r['selesai']->format('d M Y') }}
+                                            @endif
+                                        </p>
+                                        <p class="text-xs text-[#8A8078]/70 mt-0.5">
+                                            {{ $r['jumlah'] }} {{ \Illuminate\Support\Str::plural('day', $r['jumlah']) }}
+                                        </p>
+                                    </div>
+                                    <span class="text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] shrink-0">
+                                        {{ $r['label'] }}
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <form action="{{ route('koleksi.blocked-dates.history', $koleksi) }}" method="POST" class="mt-4"
+                              onsubmit="return confirm('Permanently delete all past blocked dates for this item?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-[#C0392B] text-xs hover:underline">
+                                Clear history
+                            </button>
+                        </form>
+                    </div>
+                </details>
+            @endif
 
         </div>
     </div>
