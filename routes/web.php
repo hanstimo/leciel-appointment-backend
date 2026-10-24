@@ -24,9 +24,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/dashboard/koleksi/{koleksi}/blocked-dates', [KoleksiController::class, 'addBlockedDate'])->name('koleksi.blocked-dates.store');
     Route::delete('/dashboard/koleksi/{koleksi}/blocked-dates/{date}', [KoleksiController::class, 'removeBlockedDate'])->name('koleksi.blocked-dates.destroy');
 
-    // melepas satu rentang sekaligus, dan membersihkan tanggal yang sudah lewat
+    // melepas satu rentang sekaligus
     Route::delete('/dashboard/koleksi/{koleksi}/blocked-dates-range', [KoleksiController::class, 'removeRange'])->name('koleksi.blocked-dates.range');
-    Route::delete('/dashboard/koleksi/{koleksi}/blocked-dates-history', [KoleksiController::class, 'clearHistory'])->name('koleksi.blocked-dates.history');
+
+    // halaman riwayat blokir yang tanggalnya sudah terlewat, beserta pembersihannya
+    Route::get('/dashboard/koleksi/{koleksi}/history', [KoleksiController::class, 'history'])->name('koleksi.blocked-dates.history');
+    Route::delete('/dashboard/koleksi/{koleksi}/history', [KoleksiController::class, 'clearHistory'])->name('koleksi.blocked-dates.history.clear');
 });
 
 require __DIR__.'/auth.php';
