@@ -25,15 +25,41 @@ class KoleksiController extends Controller
         return back()->with('success', "Availability of \"{$koleksi->nama_koleksi}\" updated.");
     }
 
+    /** Halaman kelola koleksi: hanya menampilkan blokir yang masih berlaku. */
     public function edit(Koleksi $koleksi)
     {
         $koleksi->load('unavailableDates');
 
-        $rentang = $this->kelompokkanRentang($koleksi->unavailableDates);
+        [$aktif, $riwayat] = $this->pisahkan($koleksi->unavailableDates);
+
+        return view('koleksi.edit', [
+            'koleksi'       => $koleksi,
+            'aktif'         => $aktif,
+            'jumlahRiwayat' => $riwayat->count(),
+        ]);
+    }
+
+    /** Halaman tersendiri untuk blokir yang tanggalnya sudah terlewat. */
+    public function history(Koleksi $koleksi)
+    {
+        $koleksi->load('unavailableDates');
+
+        [, $riwayat] = $this->pisahkan($koleksi->unavailableDates);
+
+        return view('koleksi.history', compact('koleksi', 'riwayat'));
+    }
+
+    /**
+     * Memisahkan rentang yang masih berlaku dari yang sudah terlewat.
+     * Rentang yang sedang berlangsung tetap dihitung sebagai blokir aktif.
+     *
+     * @return array{0: Collection, 1: Collection}
+     */
+    private function pisahkan(Collection $tanggal): array
+    {
+        $rentang = $this->kelompokkanRentang($tanggal);
         $hariIni = Carbon::today();
 
-        // Rentang yang masih berjalan atau akan datang tampil sebagai blokir aktif;
-        // yang sudah terlewat seluruhnya dipindah ke bagian riwayat.
         $aktif = $rentang
             ->filter(fn ($r) => $r['selesai']->gte($hariIni))
             ->values();
@@ -43,13 +69,12 @@ class KoleksiController extends Controller
             ->sortByDesc(fn ($r) => $r['mulai']->timestamp)
             ->values();
 
-        return view('koleksi.edit', compact('koleksi', 'aktif', 'riwayat'));
+        return [$aktif, $riwayat];
     }
 
     /**
-     * Menggabungkan tanggal-tanggal yang berurutan dan beralasan sama
-     * menjadi satu rentang, supaya blokir dua minggu tampil sebagai satu baris
-     * dan bukan empat belas kotak terpisah.
+     * Menggabungkan tanggal berurutan yang beralasan sama menjadi satu rentang,
+     * supaya blokir dua minggu tampil sebagai satu baris dan bukan 14 kotak.
      */
     private function kelompokkanRentang(Collection $tanggal): Collection
     {
@@ -168,6 +193,8 @@ class KoleksiController extends Controller
             ->whereDate('tanggal', '<', Carbon::today())
             ->delete();
 
-        return back()->with('success', "History cleared ({$jumlah} past dates removed).");
+        return redirect()
+            ->route('koleksi.edit', $koleksi)
+            ->with('success', "History cleared ({$jumlah} past dates removed).");
     }
 }
