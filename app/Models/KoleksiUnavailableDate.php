@@ -6,7 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class KoleksiUnavailableDate extends Model
 {
-    protected $fillable = ['koleksi_id', 'tanggal'];
+    /** Alasan yang sah beserta label tampilannya pada panel admin. */
+    public const ALASAN = [
+        'dipinjam'   => 'On loan',
+        'diperbaiki' => 'In repair',
+        'disewa'     => 'Rented out',
+        'dijual'     => 'Sold',
+    ];
+
+    protected $fillable = ['koleksi_id', 'tanggal', 'alasan'];
 
     protected $casts = [
         'tanggal' => 'date',
@@ -15,5 +23,11 @@ class KoleksiUnavailableDate extends Model
     public function koleksi()
     {
         return $this->belongsTo(Koleksi::class);
+    }
+
+    /** Label tampilan; baris lama yang belum punya alasan ditandai tanda hubung. */
+    public function getLabelAlasanAttribute(): string
+    {
+        return self::ALASAN[$this->alasan] ?? '—';
     }
 }
