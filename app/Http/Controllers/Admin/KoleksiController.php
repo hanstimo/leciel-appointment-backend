@@ -83,8 +83,11 @@ class KoleksiController extends Controller
         $grup = null;
 
         foreach ($urut as $baris) {
+            // Rentang hanya disambung bila alasan DAN nama pemegangnya sama,
+            // supaya dua peminjam berbeda pada hari berurutan tidak tergabung.
             $bersambung = $grup
                 && $baris->alasan === $grup['alasan']
+                && $baris->atas_nama === $grup['atas_nama']
                 && $baris->tanggal->copy()->subDay()->isSameDay($grup['selesai']);
 
             if ($bersambung) {
@@ -100,12 +103,13 @@ class KoleksiController extends Controller
             }
 
             $grup = [
-                'mulai'   => $baris->tanggal->copy(),
-                'selesai' => $baris->tanggal->copy(),
-                'jumlah'  => 1,
-                'alasan'  => $baris->alasan,
-                'label'   => $baris->label_alasan,
-                'ids'     => [$baris->id],
+                'mulai'     => $baris->tanggal->copy(),
+                'selesai'   => $baris->tanggal->copy(),
+                'jumlah'    => 1,
+                'alasan'    => $baris->alasan,
+                'label'     => $baris->label_alasan,
+                'atas_nama' => $baris->atas_nama,
+                'ids'       => [$baris->id],
             ];
         }
 
@@ -122,7 +126,16 @@ class KoleksiController extends Controller
             'tanggal_mulai'   => 'required|date',
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
             'alasan'          => 'required|in:'.implode(',', array_keys(KoleksiUnavailableDate::ALASAN)),
+            'atas_nama'       => 'nullable|string|max:100|required_if:alasan,'.implode(',', KoleksiUnavailableDate::PERLU_NAMA),
+        ], [
+            'atas_nama.required_if' => 'Please enter the name of the person holding the item.',
         ]);
+
+        // Nama hanya relevan untuk dipinjam dan disewa; untuk alasan lain dikosongkan
+        // supaya tidak ada sisa nama yang menempel pada blokir perbaikan atau penjualan.
+        $atasNama = KoleksiUnavailableDate::perluNama($data['alasan'])
+            ? trim($data['atas_nama'])
+            : null;
 
         $mulai = Carbon::parse($data['tanggal_mulai']);
         $selesai = isset($data['tanggal_selesai'])
@@ -137,8 +150,9 @@ class KoleksiController extends Controller
 
             if (! $sudahAda) {
                 $koleksi->unavailableDates()->create([
-                    'tanggal' => $d->format('Y-m-d'),
-                    'alasan'  => $data['alasan'],
+                    'tanggal'   => $d->format('Y-m-d'),
+                    'alasan'    => $data['alasan'],
+                    'atas_nama' => $atasNama,
                 ]);
                 $baru++;
             }
@@ -155,10 +169,12 @@ class KoleksiController extends Controller
                 "\"{$koleksi->nama_koleksi}\" marked as Sold and deactivated, so it no longer appears on any date.");
         }
 
+        $keterangan = $atasNama ? "{$label} — {$atasNama}" : $label;
+
         return back()->with('success',
             $baru === 1
-                ? "1 date marked unavailable ({$label})."
-                : "{$baru} dates marked unavailable ({$label}).");
+                ? "1 date marked unavailable ({$keterangan})."
+                : "{$baru} dates marked unavailable ({$keterangan}).");
     }
 
     public function removeBlockedDate(Koleksi $koleksi, KoleksiUnavailableDate $date)
