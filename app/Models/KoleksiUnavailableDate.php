@@ -17,7 +17,7 @@ class KoleksiUnavailableDate extends Model
     /** Alasan yang mewajibkan nama pihak pemegang barang. */
     public const PERLU_NAMA = ['dipinjam', 'disewa'];
 
-    protected $fillable = ['koleksi_id', 'tanggal', 'alasan', 'atas_nama'];
+    protected $fillable = ['koleksi_id', 'tanggal', 'alasan', 'atas_nama', 'catatan'];
 
     protected $casts = [
         'tanggal' => 'date',
