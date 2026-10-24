@@ -123,55 +123,14 @@
                         @endforeach
                     </div>
                 @endif
+
+                @if ($jumlahRiwayat > 0)
+                    <a href="{{ route('koleksi.blocked-dates.history', $koleksi) }}"
+                       class="inline-block mt-4 text-[0.7rem] uppercase tracking-[0.08em] text-[#8A8078] hover:text-[#152349]">
+                        View block history ({{ $jumlahRiwayat }} past {{ \Illuminate\Support\Str::plural('block', $jumlahRiwayat) }}) &rarr;
+                    </a>
+                @endif
             </div>
-
-            @if ($riwayat->isNotEmpty())
-                <details class="bg-[#FDFAF5] border border-[#E0D8CC] p-6 group">
-                    <summary class="cursor-pointer list-none flex items-center justify-between">
-                        <span class="font-['Cormorant_Garamond',serif] text-xl text-[#152349]">
-                            History
-                            <span class="font-['Jost',sans-serif] text-xs text-[#8A8078] ml-2">
-                                {{ $riwayat->count() }} past {{ \Illuminate\Support\Str::plural('block', $riwayat->count()) }}
-                            </span>
-                        </span>
-                        <span class="text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] group-open:hidden">Show</span>
-                        <span class="text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] hidden group-open:inline">Hide</span>
-                    </summary>
-
-                    <div class="mt-4">
-                        <div class="border border-[#E0D8CC] divide-y divide-[#E0D8CC]">
-                            @foreach ($riwayat as $r)
-                                <div class="flex items-center justify-between gap-4 px-4 py-2.5 bg-[#F5F0E8]/40">
-                                    <div class="min-w-0">
-                                        <p class="text-sm text-[#8A8078]">
-                                            @if ($r['jumlah'] === 1)
-                                                {{ $r['mulai']->format('d M Y') }}
-                                            @else
-                                                {{ $r['mulai']->format('d M Y') }} &ndash; {{ $r['selesai']->format('d M Y') }}
-                                            @endif
-                                        </p>
-                                        <p class="text-xs text-[#8A8078]/70 mt-0.5">
-                                            {{ $r['jumlah'] }} {{ \Illuminate\Support\Str::plural('day', $r['jumlah']) }}
-                                        </p>
-                                    </div>
-                                    <span class="text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] shrink-0">
-                                        {{ $r['label'] }}
-                                    </span>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <form action="{{ route('koleksi.blocked-dates.history', $koleksi) }}" method="POST" class="mt-4"
-                              onsubmit="return confirm('Permanently delete all past blocked dates for this item?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-[#C0392B] text-xs hover:underline">
-                                Clear history
-                            </button>
-                        </form>
-                    </div>
-                </details>
-            @endif
 
         </div>
     </div>
