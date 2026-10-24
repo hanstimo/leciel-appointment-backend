@@ -1,6 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;500;600&family=Jost:wght@300;400;500;600&display=swap">
+        <style>[x-cloak]{display:none!important}</style>
         <h2 class="font-['Cormorant_Garamond',serif] text-2xl text-[#152349] tracking-wide">
             {{ $koleksi->nama_koleksi }}
         </h2>
@@ -60,7 +61,9 @@
                     The reason is for internal use only and is never shown to customers.
                 </p>
 
-                <form action="{{ route('koleksi.blocked-dates.store', $koleksi) }}" method="POST" class="flex items-end gap-3 mb-6 flex-wrap">
+                <form action="{{ route('koleksi.blocked-dates.store', $koleksi) }}" method="POST"
+                      x-data="{ alasan: @js(old('alasan', '')), perluNama() { return @js(\App\Models\KoleksiUnavailableDate::PERLU_NAMA).includes(this.alasan) } }"
+                      class="flex items-end gap-3 mb-6 flex-wrap">
                     @csrf
                     <div>
                         <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">From Date</label>
@@ -74,12 +77,18 @@
                     </div>
                     <div>
                         <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">Reason</label>
-                        <select name="alasan" required class="border-[#E0D8CC] text-sm">
+                        <select name="alasan" x-model="alasan" required class="border-[#E0D8CC] text-sm">
                             <option value="">Select reason</option>
                             @foreach (\App\Models\KoleksiUnavailableDate::ALASAN as $nilai => $label)
                                 <option value="{{ $nilai }}" @selected(old('alasan') === $nilai)>{{ $label }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div x-show="perluNama()" x-cloak>
+                        <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">Held by</label>
+                        <input type="text" name="atas_nama" value="{{ old('atas_nama') }}" maxlength="100"
+                               placeholder="Name" x-bind:required="perluNama()"
+                               class="border-[#E0D8CC] text-sm">
                     </div>
                     <button type="submit" class="bg-[#152349] text-[#FDFAF5] text-sm px-4 py-2 hover:bg-[#C56E4E] transition">
                         Mark Unavailable
@@ -104,6 +113,9 @@
                                     </p>
                                     <p class="text-xs text-[#8A8078] mt-0.5">
                                         {{ $r['jumlah'] }} {{ \Illuminate\Support\Str::plural('day', $r['jumlah']) }}
+                                        @if ($r['atas_nama'])
+                                            &middot; <span class="text-[#152349]">{{ $r['atas_nama'] }}</span>
+                                        @endif
                                     </p>
                                 </div>
 

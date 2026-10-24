@@ -42,6 +42,9 @@
                                     </p>
                                     <p class="text-xs text-[#8A8078] mt-0.5">
                                         {{ $r['jumlah'] }} {{ \Illuminate\Support\Str::plural('day', $r['jumlah']) }}
+                                        @if ($r['atas_nama'])
+                                            &middot; {{ $r['atas_nama'] }}
+                                        @endif
                                     </p>
                                 </div>
                                 <span class="text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] shrink-0">
