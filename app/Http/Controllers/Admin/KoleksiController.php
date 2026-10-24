@@ -88,6 +88,7 @@ class KoleksiController extends Controller
             $bersambung = $grup
                 && $baris->alasan === $grup['alasan']
                 && $baris->atas_nama === $grup['atas_nama']
+                && $baris->catatan === $grup['catatan']
                 && $baris->tanggal->copy()->subDay()->isSameDay($grup['selesai']);
 
             if ($bersambung) {
@@ -109,6 +110,7 @@ class KoleksiController extends Controller
                 'alasan'    => $baris->alasan,
                 'label'     => $baris->label_alasan,
                 'atas_nama' => $baris->atas_nama,
+                'catatan'   => $baris->catatan,
                 'ids'       => [$baris->id],
             ];
         }
@@ -127,6 +129,7 @@ class KoleksiController extends Controller
             'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
             'alasan'          => 'required|in:'.implode(',', array_keys(KoleksiUnavailableDate::ALASAN)),
             'atas_nama'       => 'nullable|string|max:100|required_if:alasan,'.implode(',', KoleksiUnavailableDate::PERLU_NAMA),
+            'catatan'         => 'nullable|string|max:255',
         ], [
             'atas_nama.required_if' => 'Please enter the name of the person holding the item.',
         ]);
@@ -135,6 +138,10 @@ class KoleksiController extends Controller
         // supaya tidak ada sisa nama yang menempel pada blokir perbaikan atau penjualan.
         $atasNama = KoleksiUnavailableDate::perluNama($data['alasan'])
             ? trim($data['atas_nama'])
+            : null;
+
+        $catatan = isset($data['catatan']) && trim($data['catatan']) !== ''
+            ? trim($data['catatan'])
             : null;
 
         $mulai = Carbon::parse($data['tanggal_mulai']);
@@ -153,6 +160,7 @@ class KoleksiController extends Controller
                     'tanggal'   => $d->format('Y-m-d'),
                     'alasan'    => $data['alasan'],
                     'atas_nama' => $atasNama,
+                    'catatan'   => $catatan,
                 ]);
                 $baru++;
             }
