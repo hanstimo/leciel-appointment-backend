@@ -14,7 +14,10 @@ class KoleksiUnavailableDate extends Model
         'dijual'     => 'Sold',
     ];
 
-    protected $fillable = ['koleksi_id', 'tanggal', 'alasan'];
+    /** Alasan yang mewajibkan nama pihak pemegang barang. */
+    public const PERLU_NAMA = ['dipinjam', 'disewa'];
+
+    protected $fillable = ['koleksi_id', 'tanggal', 'alasan', 'atas_nama'];
 
     protected $casts = [
         'tanggal' => 'date',
@@ -29,5 +32,10 @@ class KoleksiUnavailableDate extends Model
     public function getLabelAlasanAttribute(): string
     {
         return self::ALASAN[$this->alasan] ?? '—';
+    }
+
+    public static function perluNama(?string $alasan): bool
+    {
+        return in_array($alasan, self::PERLU_NAMA, true);
     }
 }
