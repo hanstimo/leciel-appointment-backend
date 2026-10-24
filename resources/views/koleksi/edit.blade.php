@@ -63,8 +63,9 @@
 
                 <form action="{{ route('koleksi.blocked-dates.store', $koleksi) }}" method="POST"
                       x-data="{ alasan: @js(old('alasan', '')), perluNama() { return @js(\App\Models\KoleksiUnavailableDate::PERLU_NAMA).includes(this.alasan) } }"
-                      class="flex items-end gap-3 mb-6 flex-wrap">
+                      class="mb-6 space-y-3">
                     @csrf
+                    <div class="flex items-end gap-3 flex-wrap">
                     <div>
                         <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">From Date</label>
                         <input type="date" name="tanggal_mulai" value="{{ old('tanggal_mulai') }}" required
@@ -90,9 +91,19 @@
                                placeholder="Name" x-bind:required="perluNama()"
                                class="border-[#E0D8CC] text-sm">
                     </div>
-                    <button type="submit" class="bg-[#152349] text-[#FDFAF5] text-sm px-4 py-2 hover:bg-[#C56E4E] transition">
-                        Mark Unavailable
-                    </button>
+                    </div>
+
+                    <div class="flex items-end gap-3 flex-wrap">
+                        <div class="flex-1 min-w-[16rem]">
+                            <label class="block text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-1">Notes (optional)</label>
+                            <input type="text" name="catatan" value="{{ old('catatan') }}" maxlength="255"
+                                   placeholder="Invoice number, event name, damage details&hellip;"
+                                   class="border-[#E0D8CC] text-sm w-full">
+                        </div>
+                        <button type="submit" class="bg-[#152349] text-[#FDFAF5] text-sm px-4 py-2 hover:bg-[#C56E4E] transition">
+                            Mark Unavailable
+                        </button>
+                    </div>
                 </form>
 
                 <p class="text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] mb-2">Active blocks</p>
@@ -117,6 +128,9 @@
                                             &middot; <span class="text-[#152349]">{{ $r['atas_nama'] }}</span>
                                         @endif
                                     </p>
+                                    @if ($r['catatan'])
+                                        <p class="text-xs text-[#8A8078]/80 mt-1 break-words">{{ $r['catatan'] }}</p>
+                                    @endif
                                 </div>
 
                                 <div class="flex items-center gap-3 shrink-0">

@@ -46,6 +46,9 @@
                                             &middot; {{ $r['atas_nama'] }}
                                         @endif
                                     </p>
+                                    @if ($r['catatan'])
+                                        <p class="text-xs text-[#8A8078]/80 mt-1 break-words">{{ $r['catatan'] }}</p>
+                                    @endif
                                 </div>
                                 <span class="text-[0.65rem] uppercase tracking-[0.08em] text-[#8A8078] shrink-0">
                                     {{ $r['label'] }}
